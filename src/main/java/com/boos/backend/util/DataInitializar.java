@@ -40,7 +40,6 @@ public class DataInitializar implements ApplicationRunner {
             developer.setEstado(true);
             developer.setRoles(List.of(developerRol));
             usuarioRepository.save(developer);
-            System.out.println("✅ Usuario 'developer' creado");
         }
     }
 }

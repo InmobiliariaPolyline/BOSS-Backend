@@ -257,4 +257,36 @@ public class MapperConfig {
 
         return mapper;
     }
+
+    @Bean("obraArchivoMapper")
+    public ModelMapper obraArchivoMapper() {
+        ModelMapper mapper = new ModelMapper();
+
+        mapper.createTypeMap(ObraArchivo.class, ObraArchivoDTO.class)
+                .setPostConverter(ctx -> {
+                    ObraArchivo src = ctx.getSource();
+                    ObraArchivoDTO dest = ctx.getDestination();
+                    if (src.getObra() != null) {
+                        dest.setIdObra(src.getObra().getIdObra());
+                    }
+                    return dest;
+                });
+
+        mapper.createTypeMap(ObraArchivoDTO.class, ObraArchivo.class)
+                .setPostConverter(ctx -> {
+                    ObraArchivoDTO src = ctx.getSource();
+                    ObraArchivo dest = ctx.getDestination();
+                    if (src.getIdObra() != null) {
+                        Obra obra = dest.getObra();
+                        if (obra == null) {
+                            obra = new Obra();
+                            dest.setObra(obra);
+                        }
+                        obra.setIdObra(src.getIdObra());
+                    }
+                    return dest;
+                });
+
+        return mapper;
+    }
 }
