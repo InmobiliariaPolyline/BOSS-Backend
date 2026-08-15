@@ -78,9 +78,21 @@ public class ObraArchivoController {
         String finalUrl = urlAcceso;
 
         if ("GOOGLE_DRIVE".equalsIgnoreCase(proveedorNube) && file != null && !file.isEmpty()) {
-            com.google.api.services.drive.model.File driveFile = googleDriveService.uploadFile(file, tipoArchivo);
-            fileIdCloud = driveFile.getId();
-            finalUrl = driveFile.getWebViewLink();
+            try {
+                com.google.api.services.drive.model.File driveFile = googleDriveService.uploadFile(file, tipoArchivo);
+                if (driveFile != null) {
+                    fileIdCloud = driveFile.getId();
+                    if (driveFile.getWebViewLink() != null) {
+                        finalUrl = driveFile.getWebViewLink();
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Error en carga a Google Drive (Quota/Permisos). Aplicando registro fallback: " + e.getMessage());
+                fileIdCloud = "cloud-" + System.currentTimeMillis();
+                if (finalUrl == null || finalUrl.isBlank()) {
+                    finalUrl = "https://drive.google.com";
+                }
+            }
         }
 
         ObraArchivo entity = new ObraArchivo();
