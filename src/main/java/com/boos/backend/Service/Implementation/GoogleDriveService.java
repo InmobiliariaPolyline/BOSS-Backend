@@ -9,6 +9,7 @@ import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.Permission;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.UserCredentials;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,24 +33,25 @@ public class GoogleDriveService {
     @Value("${google.drive.folder.docx:}")
     private String folderDocxId;
 
+    @Value("${google.drive.client.id:}")
+    private String clientId;
+
+    @Value("${google.drive.client.secret:}")
+    private String clientSecret;
+
+    @Value("${google.drive.refresh.token:}")
+    private String refreshToken;
+
     private Drive getDriveService() throws Exception {
-        InputStream in = null;
-
-        String envJson = System.getenv("GOOGLE_CREDENTIALS_JSON");
-        if (envJson != null && !envJson.isBlank()) {
-            in = new java.io.ByteArrayInputStream(envJson.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-        } else {
-            in = getClass().getResourceAsStream("/boss-505415-3dd9faa160e7.json");
-            if (in == null) {
-                in = getClass().getResourceAsStream("/credentials.json");
-            }
+        if (clientId == null || refreshToken == null || clientId.isBlank() || refreshToken.isBlank()) {
+            throw new IllegalStateException("Faltan credenciales OAuth 2.0 (client id, client secret, refresh token)");
         }
 
-        if (in == null) {
-            throw new IllegalStateException("No se encontraron credenciales de Google Drive ni en la variable de entorno GOOGLE_CREDENTIALS_JSON ni en src/main/resources/");
-        }
-        GoogleCredentials credentials = GoogleCredentials.fromStream(in)
-                .createScoped(Collections.singleton(DriveScopes.DRIVE));
+        UserCredentials credentials = UserCredentials.newBuilder()
+                .setClientId(clientId)
+                .setClientSecret(clientSecret)
+                .setRefreshToken(refreshToken)
+                .build();
 
         return new Drive.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
