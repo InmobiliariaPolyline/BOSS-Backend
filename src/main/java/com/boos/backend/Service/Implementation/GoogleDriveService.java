@@ -68,6 +68,8 @@ public class GoogleDriveService {
         String targetFolder = getFolderIdForType(tipoArchivo);
         if (targetFolder != null && !targetFolder.isBlank()) {
             fileMetadata.setParents(List.of(targetFolder));
+        } else {
+            throw new IllegalStateException("No se ha configurado un ID de carpeta destino (google.drive.folder.id). Las Service Accounts requieren guardar en una carpeta compartida existente.");
         }
 
         InputStreamContent mediaContent = new InputStreamContent(
@@ -78,12 +80,15 @@ public class GoogleDriveService {
 
         File uploadedFile = drive.files().create(fileMetadata, mediaContent)
                 .setFields("id, name, webViewLink, webContentLink")
+                .setSupportsAllDrives(true)
                 .execute();
 
         Permission permission = new Permission()
                 .setType("anyone")
                 .setRole("reader");
-        drive.permissions().create(uploadedFile.getId(), permission).execute();
+        drive.permissions().create(uploadedFile.getId(), permission)
+                .setSupportsAllDrives(true)
+                .execute();
 
         return uploadedFile;
     }
