@@ -261,6 +261,7 @@ public class MapperConfig {
     @Bean("obraArchivoMapper")
     public ModelMapper obraArchivoMapper() {
         ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(org.modelmapper.convention.MatchingStrategies.STRICT);
 
         mapper.createTypeMap(ObraArchivo.class, ObraArchivoDTO.class)
                 .setPostConverter(ctx -> {
