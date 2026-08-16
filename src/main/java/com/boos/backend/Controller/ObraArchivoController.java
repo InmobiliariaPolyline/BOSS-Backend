@@ -27,11 +27,29 @@ public class ObraArchivoController {
     @Qualifier("obraArchivoMapper")
     private final ModelMapper modelMapper;
 
+    private ObraArchivoDTO convertToDTO(ObraArchivo saved) {
+        ObraArchivoDTO responseDto = new ObraArchivoDTO();
+        responseDto.setIdObraArchivo(saved.getIdObraArchivo());
+        if (saved.getObra() != null) {
+            responseDto.setIdObra(saved.getObra().getIdObra());
+        }
+        responseDto.setNombreArchivo(saved.getNombreArchivo());
+        responseDto.setTipoArchivo(saved.getTipoArchivo());
+        responseDto.setFileIdNube(saved.getFileIdNube());
+        responseDto.setProveedorNube(saved.getProveedorNube());
+        responseDto.setUrlAcceso(saved.getUrlAcceso());
+        responseDto.setCategoria(saved.getCategoria());
+        responseDto.setTamano(saved.getTamano());
+        responseDto.setVersion(saved.getVersion());
+        responseDto.setEstadoSincronizacion(saved.getEstadoSincronizacion());
+        return responseDto;
+    }
+
     @GetMapping
     public ResponseEntity<List<ObraArchivoDTO>> findAll() throws Exception {
         List<ObraArchivoDTO> list = service.findAll()
                 .stream()
-                .map(e -> modelMapper.map(e, ObraArchivoDTO.class))
+                .map(this::convertToDTO)
                 .toList();
         return ResponseEntity.ok(list);
     }
@@ -44,14 +62,14 @@ public class ObraArchivoController {
     @GetMapping("/{id}")
     public ResponseEntity<ObraArchivoDTO> findById(@PathVariable("id") Integer id) throws Exception {
         ObraArchivo obj = service.findById(id);
-        return ResponseEntity.ok(modelMapper.map(obj, ObraArchivoDTO.class));
+        return ResponseEntity.ok(this.convertToDTO(obj));
     }
 
     @GetMapping("/obra/{idObra}")
     public ResponseEntity<List<ObraArchivoDTO>> findByObra(@PathVariable("idObra") Integer idObra) throws Exception {
         List<ObraArchivoDTO> list = service.findByObra(idObra)
                 .stream()
-                .map(e -> modelMapper.map(e, ObraArchivoDTO.class))
+                .map(e -> this.convertToDTO(e))
                 .toList();
         return ResponseEntity.ok(list);
     }
@@ -61,7 +79,7 @@ public class ObraArchivoController {
         ObraArchivo obj = service.save(modelMapper.map(dto, ObraArchivo.class));
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(obj.getIdObraArchivo()).toUri();
-        return ResponseEntity.created(location).body(modelMapper.map(obj, ObraArchivoDTO.class));
+        return ResponseEntity.created(location).body(this.convertToDTO(obj));
     }
 
     @PostMapping(value = "/upload", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -110,14 +128,28 @@ public class ObraArchivoController {
         entity.setEstadoSincronizacion("SINCRONIZADO");
 
         ObraArchivo saved = service.save(entity);
-        return ResponseEntity.ok(modelMapper.map(saved, ObraArchivoDTO.class));
+        ObraArchivoDTO responseDto = new ObraArchivoDTO();
+        responseDto.setIdObraArchivo(saved.getIdObraArchivo());
+        if (saved.getObra() != null) {
+            responseDto.setIdObra(saved.getObra().getIdObra());
+        }
+        responseDto.setNombreArchivo(saved.getNombreArchivo());
+        responseDto.setTipoArchivo(saved.getTipoArchivo());
+        responseDto.setFileIdNube(saved.getFileIdNube());
+        responseDto.setProveedorNube(saved.getProveedorNube());
+        responseDto.setUrlAcceso(saved.getUrlAcceso());
+        responseDto.setCategoria(saved.getCategoria());
+        responseDto.setTamano(saved.getTamano());
+        responseDto.setVersion(saved.getVersion());
+        responseDto.setEstadoSincronizacion(saved.getEstadoSincronizacion());
+        return ResponseEntity.ok(responseDto);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ObraArchivoDTO> update(@PathVariable("id") Integer id, @Valid @RequestBody ObraArchivoDTO dto)
             throws Exception {
         ObraArchivo obj = service.update(modelMapper.map(dto, ObraArchivo.class), id);
-        return ResponseEntity.ok(modelMapper.map(obj, ObraArchivoDTO.class));
+        return ResponseEntity.ok(this.convertToDTO(obj));
     }
 
     @DeleteMapping("/{id}")
