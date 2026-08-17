@@ -123,7 +123,20 @@ public class ObraArchivoController {
         entity.setProveedorNube(ProveedorNube.valueOf(proveedorNube.toUpperCase()));
         entity.setUrlAcceso(finalUrl != null ? finalUrl : "https://drive.google.com");
         entity.setCategoria(categoria != null ? categoria : "Documento de Obra");
-        entity.setTamano(file != null ? String.format("%.1f MB", file.getSize() / (1024.0 * 1024.0)) : "1.0 MB");
+        
+        String formatTamano = "1.0 MB";
+        if (file != null) {
+            long bytes = file.getSize();
+            if (bytes < 1024) {
+                formatTamano = bytes + " Bytes";
+            } else if (bytes < 1024 * 1024) {
+                formatTamano = String.format("%.1f KB", bytes / 1024.0);
+            } else {
+                formatTamano = String.format("%.2f MB", bytes / (1024.0 * 1024.0));
+            }
+        }
+        entity.setTamano(formatTamano);
+
         entity.setVersion("v1.0");
         entity.setEstadoSincronizacion("SINCRONIZADO");
 
