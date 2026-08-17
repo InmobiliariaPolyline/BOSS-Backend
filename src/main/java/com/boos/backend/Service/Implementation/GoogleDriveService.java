@@ -104,4 +104,18 @@ public class GoogleDriveService {
             default -> defaultFolderId;
         };
     }
+
+    public void deleteFile(String fileId) throws Exception {
+        if (fileId == null || fileId.isBlank() || fileId.startsWith("cloud-")) {
+            return; // Invalid or fallback ID, skip deletion
+        }
+        Drive drive = getDriveService();
+        try {
+            drive.files().delete(fileId).setSupportsAllDrives(true).execute();
+            System.out.println("Archivo eliminado exitosamente de Google Drive: " + fileId);
+        } catch (Exception e) {
+            System.err.println("Error al intentar eliminar archivo de Google Drive: " + e.getMessage());
+            // We dont throw so it doesnt block the DB deletion if Drive fails
+        }
+    }
 }

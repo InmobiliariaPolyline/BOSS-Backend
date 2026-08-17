@@ -167,6 +167,16 @@ public class ObraArchivoController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") Integer id) throws Exception {
+        try {
+            ObraArchivo obj = service.findById(id);
+            if (obj != null && obj.getProveedorNube() != null) {
+                if ("GOOGLE_DRIVE".equalsIgnoreCase(obj.getProveedorNube().name())) {
+                    googleDriveService.deleteFile(obj.getFileIdNube());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Advertencia al intentar borrar de la nube: " + e.getMessage());
+        }
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
